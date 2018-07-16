@@ -25,3 +25,4 @@ export { ParserPipeline, CompilerPipeline } from './Tools/Parsing';
 export { ConcatPipeline } from './Tools/Concat';
 export { OffsetPipeline } from './Tools/Offset';
 export { TrimPipeline } from './Tools/Trim';
+export { ConstantPipeline } from './Tools/Constant';

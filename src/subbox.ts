@@ -70,7 +70,7 @@ export type MessageProtocol<T> = Message<MessageKind.Start, MessagePayloadStart>
                                | Message<MessageKind.Data, T>
                                | Message<MessageKind.End, void>;
                             //    | Message<any, any>;
-                            
+
 export type SubsMessageProtocol = MessageProtocol<SubLine>;
 
-export type SubsPipeline = SubboxPipeline<AsyncIterableLike<SubsMessageProtocol>, AsyncIterable<SubsMessageProtocol>>;
+export type SubsPipeline = SubboxPipeline<void, AsyncIterable<SubsMessageProtocol>>;
