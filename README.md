@@ -9,7 +9,7 @@ npm install --save data-future
 
 # Usage
 ```typescript
-import { StdContext, Pipeline, FileReader, DecoderPipeline, EncoderPipeline, FileWriter } from 'subbox;
+import { StdContext, Pipeline, FileReader, DecoderPipeline, EncoderPipeline, FileWriter } from 'subbox';
 import { ParserPipeline, OffsetPipeline, CompilerPipeline } from 'subbox';
 
 const transformer = Pipeline.create(
