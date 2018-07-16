@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "declaration": true,
+        "declarationMap": true,
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "outDir": "build/",
+        "experimentalDecorators": true,
+        "lib": [
+            "es2015.promise","es2015", "esnext.asynciterable"
+        ]
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules/**/*",
+        "**/*.spec.ts",
+        "build/**/*"
+    ]
+}
