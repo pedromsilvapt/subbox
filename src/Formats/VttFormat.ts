@@ -25,7 +25,7 @@ export class VttFormat extends SubFormat<VttSubLine> {
     async * compile ( lines : AsyncIterableIterator<VttSubLine> ) : AsyncIterableIterator<string> {
         const array = await toArray( lines );
 
-        yield Subtitle.stringify( array.map( line => ( {
+        yield Subtitle.stringifyVtt( array.map( line => ( {
             start: Subtitle.toVttTime( line.start ),
             end: Subtitle.toVttTime( line.end ),
             text: line.text,

@@ -47,7 +47,7 @@ export class FileWriter extends SubboxPipeline<AsyncIterableIterator<MessageProt
 
     async run ( env : ContextManager, input ?: AsyncIterableIterator<MessageProtocol<Buffer>> ) : Promise<void> {
         await new Promise( ( resolve, reject ) => {
-            const buffers = map( filter( input, message => message.kind != MessageKind.Data ), message => message.payload as Buffer );
+            const buffers = map( filter( input, message => message.kind == MessageKind.Data ), message => message.payload as Buffer );
 
             const writer = fs.createWriteStream( this.file );
 

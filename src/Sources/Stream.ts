@@ -40,9 +40,9 @@ export class StreamWriter extends SubboxPipeline<AsyncIterableIterator<MessagePr
 
     async run ( env : ContextManager, input : AsyncIterableIterator<MessageProtocol<Buffer>> ) : Promise<void> {
         return new Promise<void>( ( resolve, reject ) => {
-            const buffers = map( filter( input, message => message.kind != MessageKind.Data ), message => message.payload as Buffer );
+            const buffers = map( filter( input, message => message.kind == MessageKind.Data ), message => message.payload as Buffer );
 
-            toStream( buffers ).pipe( this.writable )
+            toStream( buffers ).on( 'error', reject ).pipe( this.writable )
                 .on( 'error', reject )
                 .on( 'finish', resolve );
         } );
@@ -55,7 +55,7 @@ export class StreamDuplex extends SubboxPipeline<AsyncIterableIterator<MessagePr
     }
 
     run ( env : ContextManager, input : AsyncIterableIterator<MessageProtocol<Buffer>> ) : NodeJS.ReadableStream {
-        const buffers = map( filter( input, message => message.kind != MessageKind.Data ), message => message.payload as Buffer );
+        const buffers = map( filter( input, message => message.kind == MessageKind.Data ), message => message.payload as Buffer );
 
         return toStream( buffers );
     }
