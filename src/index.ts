@@ -19,7 +19,7 @@ export { Pipeline, IPipeline, BridgePipeline } from './Pipeline';
 export { Container } from './Container';
 
 export { FileReader, FileWriter } from './Sources/Files';
-export { StreamReader, StreamWriter } from './Sources/Stream';
+export { StreamReader, StreamWriter, StreamDuplex } from './Sources/Stream';
 export { EncoderPipeline, DecoderPipeline, DecodeOptions } from './Tools/Encoding';
 export { ParserPipeline, CompilerPipeline } from './Tools/Parsing';
 export { ConcatPipeline } from './Tools/Concat';
