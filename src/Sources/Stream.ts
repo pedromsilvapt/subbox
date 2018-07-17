@@ -1,6 +1,6 @@
-import { SubboxPipeline, ContextManager, MessageFactory, MessageProtocol } from "../subbox";
+import { SubboxPipeline, ContextManager, MessageFactory, MessageProtocol, MessageKind } from "../subbox";
 import { StdContext } from "..";
-import { map, fromStream, toStream } from "data-async-iterators";
+import { map, fromStream, toStream, filter } from "data-async-iterators";
 
 export class StreamReader extends SubboxPipeline<NodeJS.ReadableStream, AsyncIterableIterator<MessageProtocol<Buffer>>> {
     public format : string;
@@ -29,7 +29,7 @@ export class StreamReader extends SubboxPipeline<NodeJS.ReadableStream, AsyncIte
     }
 }
 
-export class StreamWriter extends SubboxPipeline<AsyncIterableIterator<Buffer>, Promise<void>> {
+export class StreamWriter extends SubboxPipeline<AsyncIterableIterator<MessageProtocol<Buffer>>, Promise<void>> {
     writable : NodeJS.WritableStream;
 
     constructor ( writable : NodeJS.WritableStream ) {
@@ -38,11 +38,25 @@ export class StreamWriter extends SubboxPipeline<AsyncIterableIterator<Buffer>, 
         this.writable = writable;
     }
 
-    async run ( env : ContextManager, input : AsyncIterableIterator<Buffer> ) : Promise<void> {
+    async run ( env : ContextManager, input : AsyncIterableIterator<MessageProtocol<Buffer>> ) : Promise<void> {
         return new Promise<void>( ( resolve, reject ) => {
-            toStream( input ).pipe( this.writable )
-                .on( 'finish', resolve )
-                .on( 'error', reject );
+            const buffers = map( filter( input, message => message.kind != MessageKind.Data ), message => message.payload as Buffer );
+
+            toStream( buffers ).pipe( this.writable )
+                .on( 'error', reject )
+                .on( 'finish', resolve );
         } );
+    }
+}
+
+export class StreamDuplex extends SubboxPipeline<AsyncIterableIterator<MessageProtocol<Buffer>>, NodeJS.ReadableStream> {
+    constructor () {
+        super();
+    }
+
+    run ( env : ContextManager, input : AsyncIterableIterator<MessageProtocol<Buffer>> ) : NodeJS.ReadableStream {
+        const buffers = map( filter( input, message => message.kind != MessageKind.Data ), message => message.payload as Buffer );
+
+        return toStream( buffers );
     }
 }

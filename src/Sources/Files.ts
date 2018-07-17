@@ -1,7 +1,7 @@
-import { SubboxPipeline, ContextManager, MessageFactory, MessageProtocol } from "../subbox";
+import { SubboxPipeline, ContextManager, MessageFactory, MessageProtocol, MessageKind } from "../subbox";
 import { StdContext } from "..";
 import * as path from 'path';
-import { map, from, toStream, fromStream } from "data-async-iterators";
+import { map, toStream, fromStream, filter } from "data-async-iterators";
 import * as fs from 'mz/fs';
 
 export class FileReader extends SubboxPipeline<string, AsyncIterableIterator<MessageProtocol<Buffer>>> {
@@ -36,7 +36,7 @@ export class FileReader extends SubboxPipeline<string, AsyncIterableIterator<Mes
     }
 }
 
-export class FileWriter extends SubboxPipeline<AsyncIterableIterator<Buffer>, Promise<void>> {
+export class FileWriter extends SubboxPipeline<AsyncIterableIterator<MessageProtocol<Buffer>>, Promise<void>> {
     file : string;
 
     constructor ( file : string ) {
@@ -45,9 +45,13 @@ export class FileWriter extends SubboxPipeline<AsyncIterableIterator<Buffer>, Pr
         this.file = file;
     }
 
-    async run ( env : ContextManager, input ?: AsyncIterableIterator<Buffer> ) : Promise<void> {
+    async run ( env : ContextManager, input ?: AsyncIterableIterator<MessageProtocol<Buffer>> ) : Promise<void> {
         await new Promise( ( resolve, reject ) => {
-            toStream( input ).pipe( fs.createWriteStream( this.file ) )
+            const buffers = map( filter( input, message => message.kind != MessageKind.Data ), message => message.payload as Buffer );
+
+            const writer = fs.createWriteStream( this.file );
+
+            toStream( buffers ).pipe( writer )
                 .on( 'error', reject )
                 .on( 'finish', resolve );
         } );
