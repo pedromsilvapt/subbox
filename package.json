@@ -1,6 +1,6 @@
 {
   "name": "subbox",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Composable subtitle parsing and transformations (including encoding/decoding) written in TypeScript",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -20,7 +20,7 @@
   "author": "Pedro M. Silva <pemiolsi@hotmail.com>",
   "license": "ISC",
   "dependencies": {
-    "data-async-iterators": "^0.5.5",
+    "data-async-iterators": "^0.5.6",
     "iconv-lite": "^0.4.23",
     "jschardet": "^1.6.0",
     "mz": "^2.7.0",
