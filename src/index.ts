@@ -20,10 +20,12 @@ export { Container } from './Container';
 
 export { FileReader, FileWriter } from './Sources/Files';
 export { StreamReader, StreamWriter, StreamDuplex } from './Sources/Stream';
-export { EncoderPipeline, DecoderPipeline, DecodeOptions } from './Tools/Encoding';
-export { ParserPipeline, CompilerPipeline } from './Tools/Parsing';
 export { ConcatPipeline } from './Tools/Concat';
-export { OffsetPipeline } from './Tools/Offset';
-export { TrimPipeline } from './Tools/Trim';
 export { ConstantPipeline } from './Tools/Constant';
+export { EditPipeline, EditFormattingPipeline, LinePredicate, TagsRegEx } from './Tools/Edit';
+export { EncoderPipeline, DecoderPipeline, DecodeOptions } from './Tools/Encoding';
+export { FilterEmptyLinesPipeline, FilterPipeline } from './Tools/Filter';
 export { LazyPipeline } from './Tools/Lazy';
+export { OffsetPipeline } from './Tools/Offset';
+export { ParserPipeline, CompilerPipeline } from './Tools/Parsing';
+export { TrimPipeline } from './Tools/Trim';
