@@ -1,8 +1,8 @@
-import { SubLine, SubboxPipeline } from "../subbox";
+import { SubLine, SubboxPipeline, MessageProtocol, MessageKind, MessageFactory } from "../subbox";
 import { map, AsyncIterableLike } from "data-async-iterators";
 import { StdContext } from "../index";
 
-export class OffsetPipeline extends SubboxPipeline<AsyncIterableLike<SubLine>, AsyncIterableIterator<SubLine>> {
+export class OffsetPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterableIterator<MessageProtocol<SubLine>>> {
     offset : number;
 
     constructor ( offset : number ) {
@@ -11,14 +11,18 @@ export class OffsetPipeline extends SubboxPipeline<AsyncIterableLike<SubLine>, A
         this.offset = offset;
     }
 
-    run ( ctx : StdContext, input : AsyncIterableLike<SubLine> ) : AsyncIterableIterator<SubLine> {
-        return map( input, line => {
-            line = line.clone();
+    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterableIterator<MessageProtocol<SubLine>> {
+        return map( input, message => {
+            if ( message.kind != MessageKind.Data ) {
+                return message;
+            }
+
+            const line = message.payload.clone();
             
             line.start += this.offset;
             line.end += this.offset;
 
-            return line;
+            return MessageFactory.data( line );
         } );
     }
 }

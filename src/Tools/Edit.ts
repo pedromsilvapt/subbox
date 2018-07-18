@@ -31,13 +31,12 @@ export class EditPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtoc
 
 export var TagsRegEx = [
     /<([A-Z][A-Z0-9]*)\b[^>]*>([^\/\1]*?)<\/\1>/gi,
-    /\{([A-Z0-9\\\(\),\.]*)\b[^}]*}/gi
+    /\{([A-Z0-9\\\(\),\.]*)\b[^}]*}/gi,
+    /<(\/?)([A-Z][A-Z0-9]*)\b[^>]*>/gi
 ];
 
 export class EditFormattingPipeline extends EditPipeline {
     constructor () {
-        super( text => {
-            return text.replace( TagsRegEx[ 0 ], '$2' ).replace( TagsRegEx[ 1 ], '' );
-        } );
+        super( text => text.replace( TagsRegEx[ 0 ], '$2' ).replace( TagsRegEx[ 1 ], '' ).replace(exports.TagsRegEx[2], '') );
     }
 }

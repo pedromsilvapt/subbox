@@ -1,8 +1,8 @@
-import { SubLine, SubRange, SubboxPipeline } from "../subbox";
+import { SubLine, SubRange, SubboxPipeline, MessageProtocol, MessageKind, MessageFactory } from "../subbox";
 import { AsyncIterableLike, dropWhile, map, takeWhile } from 'data-async-iterators';
 import { StdContext } from "../index";
 
-export class TrimPipeline extends SubboxPipeline<AsyncIterableLike<SubLine>, AsyncIterableIterator<SubLine>> {
+export class TrimPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterableIterator<MessageProtocol<SubLine>>> {
     retime : boolean;
     range : SubRange;
 
@@ -13,14 +13,30 @@ export class TrimPipeline extends SubboxPipeline<AsyncIterableLike<SubLine>, Asy
         this.range = range;
     }
 
-    run ( ctx : StdContext, input : AsyncIterableLike<SubLine> ) : AsyncIterableIterator<SubLine> {
+    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterableIterator<MessageProtocol<SubLine>> {
         const range = this.range;
         const retime = this.retime;
 
-        const after = dropWhile( input, line => line.end < range.start );
-        const middle = takeWhile( after, line => line.start < range.end );
+        const dataFilter = <M>( predicate : ( data : M ) => boolean ) => {
+            return ( message : MessageProtocol<M> ) => {
+                if ( message.kind != MessageKind.Data ) {
+                    return true;
+                }
+    
+                return predicate( message.payload );
+            };
+        }
 
-        return map( middle, line => {
+        const after = dropWhile( input, dataFilter( line => line.end < range.start ) );
+        const middle = takeWhile( after, dataFilter( line => line.start < range.end ) );
+
+        return map( middle, message => {
+            if ( message.kind != MessageKind.Data ) {
+                return message;
+            }
+
+            let line = message.payload;
+
             if ( line.start < range.start || line.end > range.end ) {
                 line = line.clone();
 
@@ -35,7 +51,7 @@ export class TrimPipeline extends SubboxPipeline<AsyncIterableLike<SubLine>, Asy
                 line.end -= range.start;
             }
 
-            return line;
+            return MessageFactory.data( line );
         } );
     }
 }
