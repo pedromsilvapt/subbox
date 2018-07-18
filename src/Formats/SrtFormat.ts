@@ -9,7 +9,10 @@ export class SrtFormat extends SubFormat<SubLine> {
     async * parse ( source : AsyncIterableLike<string> ) : AsyncIterableIterator<SubLine> {
         const joined = ( await toArray( source ) ).join( '' );
 
-        const rawLines : any[] = Subtitle.parse( joined );
+        const rawLines : any[] = Subtitle.parse( joined, {
+            skipInvalidCaptions: true,
+            skipContiguousErrors: true
+        } );
 
         const lines : SubLine[] = rawLines.map( 
             line => new SubLine( line.start, line.end, line.text )

@@ -13,7 +13,10 @@ export class VttFormat extends SubFormat<VttSubLine> {
     async * parse ( source : AsyncIterableLike<string> ) : AsyncIterableIterator<VttSubLine> {
         const joined = ( await toArray( source ) ).join( '' );
 
-        const rawLines : any[] = Subtitle.parse( joined );
+        const rawLines : any[] = Subtitle.parse( joined, {
+            skipInvalidCaptions: true,
+            skipContiguousErrors: true
+        } );
 
         const lines : VttSubLine[] = rawLines.map( 
             line => new VttSubLine( Subtitle.toMS( line.start ), Subtitle.toMS( line.end ), line.text )
