@@ -1,7 +1,8 @@
 import { SubboxPipeline, ContextManager, MessageFactory, MessageProtocol, MessageKind } from "../subbox";
 import { StdContext } from "..";
 import * as path from 'path';
-import { map, toStream, fromStream, filter } from "data-async-iterators";
+import { map, filter } from "data-async-iterators";
+import { toStream, fromStream } from 'data-async-iterators/streams';
 import * as fs from 'mz/fs';
 
 export class FileReader extends SubboxPipeline<string, AsyncIterableIterator<MessageProtocol<Buffer>>> {

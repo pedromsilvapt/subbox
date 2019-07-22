@@ -4,7 +4,7 @@ import { ContextManager, StdContext } from "../index";
 
 export type LinePredicate = ( line : string, ctx : ContextManager ) => string;
 
-export class EditPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterableIterator<MessageProtocol<SubLine>>> {
+export class EditPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterable<MessageProtocol<SubLine>>> {
     editor : LinePredicate;
 
     constructor ( editor : LinePredicate ) {
@@ -13,7 +13,7 @@ export class EditPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtoc
         this.editor = editor;
     }
 
-    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterableIterator<MessageProtocol<SubLine>> {
+    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterable<MessageProtocol<SubLine>> {
         return map( input, message => {
             if ( message.kind == MessageKind.Data ) {
                 const cloned = message.payload.clone();

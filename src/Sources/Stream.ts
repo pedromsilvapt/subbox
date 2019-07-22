@@ -1,6 +1,7 @@
 import { SubboxPipeline, ContextManager, MessageFactory, MessageProtocol, MessageKind } from "../subbox";
 import { StdContext } from "..";
-import { map, fromStream, toStream, filter } from "data-async-iterators";
+import { map, filter } from "data-async-iterators";
+import { toStream, fromStream } from 'data-async-iterators/streams';
 
 export class StreamReader extends SubboxPipeline<NodeJS.ReadableStream, AsyncIterableIterator<MessageProtocol<Buffer>>> {
     public format : string;

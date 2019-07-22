@@ -1,5 +1,5 @@
 import { SubboxPipeline, MessageProtocol, MessageKind, MessageFactory } from "../subbox";
-import { AsyncIterableLike, cancellable, CancelToken, takeUntil, filter, map } from "data-async-iterators";
+import { AsyncIterableLike, cancellable, CancelToken, takeUntil, filter, map, dynamic } from "data-async-iterators";
 import { SubLine, StdContext } from "../index";
 
 export function partial<T> ( iter : AsyncIterator<T> ) : AsyncIterableIterator<T> {
@@ -34,44 +34,48 @@ export function partial<T> ( iter : AsyncIterator<T> ) : AsyncIterableIterator<T
     }
 }
 
-export class ParserPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<string>>, AsyncIterableIterator<MessageProtocol<SubLine>>> {
+export class ParserPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<string>>, AsyncIterable<MessageProtocol<SubLine>>> {
     format : string = null;
 
-    async * run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<string>> ) : AsyncIterableIterator<MessageProtocol<SubLine>> {
-        const cancel = new CancelToken();
+    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<string>> ) : AsyncIterable<MessageProtocol<SubLine>> {
+        const that = this;
+
+        return dynamic( async function * () {
+            const cancel = new CancelToken();
         
-        const controller = cancellable( input, cancel );
-
-        const iterator = controller[ Symbol.asyncIterator ]();
-        
-        const mainMessages = partial( iterator );
-
-        for await ( let message of mainMessages ) {
-            while ( message.kind != MessageKind.Start ) continue;
-
-            const format = this.format ? ctx.formats.get( this.format ) : message.payload.format;
-
-            if ( !format ) {
-                if ( this.format ) {
-                    throw new Error( `Could not find a subtitles format for ${ this.format }` );
-                } else {
-                    throw new Error( `Subtitles start provides no format to parser.` );
+            const controller = cancellable( input, cancel );
+    
+            const iterator = controller[ Symbol.asyncIterator ]();
+            
+            const mainMessages = partial( iterator );
+    
+            for await ( let message of mainMessages ) {
+                while ( message.kind != MessageKind.Start ) continue;
+    
+                const format = that.format ? ctx.formats.get( that.format ) : message.payload.format;
+    
+                if ( !format ) {
+                    if ( that.format ) {
+                        throw new Error( `Could not find a subtitles format for ${ that.format }` );
+                    } else {
+                        throw new Error( `Subtitles start provides no format to parser.` );
+                    }
                 }
+    
+                yield MessageFactory.start( format, message.payload.encoding );
+    
+                const data = filter( takeUntil( partial( iterator ), m => m.kind === MessageKind.End ), m => m.kind === MessageKind.Data );
+    
+                yield * map( format.parse( map( data, m => m.payload as any as string ) ), line => MessageFactory.data( line ) );
+    
+                yield MessageFactory.end();
             }
-
-            yield MessageFactory.start( format, message.payload.encoding );
-
-            const data = filter( takeUntil( partial( iterator ), m => m.kind === MessageKind.End ), m => m.kind === MessageKind.Data );
-
-            yield * map( format.parse( map( data, m => m.payload as any as string ) ), line => MessageFactory.data( line ) );
-
-            yield MessageFactory.end();
-        }
+        } );
     }
 }
 
 
-export class CompilerPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterableIterator<MessageProtocol<string>>> {
+export class CompilerPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterable<MessageProtocol<string>>> {
     format : string = null;
 
     constructor ( format : string = null ) {
@@ -80,35 +84,39 @@ export class CompilerPipeline extends SubboxPipeline<AsyncIterableLike<MessagePr
         this.format = format;
     }
 
-    async * run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterableIterator<MessageProtocol<string>> {
-        const cancel = new CancelToken();
-        
-        const controller = cancellable( input, cancel );
+    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterable<MessageProtocol<string>> {
+        const that = this;
 
-        const iterator = controller[ Symbol.asyncIterator ]();
-        
-        const mainMessages = partial( iterator );
+        return dynamic(async function * () {
+            const cancel = new CancelToken();
+            
+            const controller = cancellable( input, cancel );
 
-        for await ( let message of mainMessages ) {
-            while ( message.kind != MessageKind.Start ) continue;
+            const iterator = controller[ Symbol.asyncIterator ]();
+            
+            const mainMessages = partial( iterator );
 
-            const format = this.format ? ctx.formats.get( this.format ) : message.payload.format;
+            for await ( let message of mainMessages ) {
+                while ( message.kind != MessageKind.Start ) continue;
 
-            if ( !format ) {
-                if ( this.format ) {
-                    throw new Error( `Could not find a subtitles format for ${ this.format }` );
-                } else {
-                    throw new Error( `Subtitles start provides no format to parser.` );
+                const format = that.format ? ctx.formats.get( that.format ) : message.payload.format;
+
+                if ( !format ) {
+                    if ( that.format ) {
+                        throw new Error( `Could not find a subtitles format for ${ that.format }` );
+                    } else {
+                        throw new Error( `Subtitles start provides no format to parser.` );
+                    }
                 }
+
+                yield MessageFactory.start( format, message.payload.encoding ) as any;
+
+                const data = filter( takeUntil( partial( iterator ), m => m.kind === MessageKind.End ), m => m.kind === MessageKind.Data );
+
+                yield * map( format.compile( map( data, m => m.payload as any as SubLine ) as any ), line => MessageFactory.data( line ) );
+
+                yield MessageFactory.end();
             }
-
-            yield MessageFactory.start( format, message.payload.encoding );
-
-            const data = filter( takeUntil( partial( iterator ), m => m.kind === MessageKind.End ), m => m.kind === MessageKind.Data );
-
-            yield * map( format.compile( map( data, m => m.payload as any as SubLine ) ), line => MessageFactory.data( line ) );
-
-            yield MessageFactory.end();
-        }
+        }, true);
     }
 }

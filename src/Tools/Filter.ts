@@ -4,7 +4,7 @@ import { ContextManager, StdContext } from "../index";
 
 export type LinePredicate<S> = ( ( line : S, ctx : ContextManager ) => boolean | Promise<boolean> ) | ( string | RegExp )[];
 
-export class FilterPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterableIterator<MessageProtocol<SubLine>>> {
+export class FilterPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterable<MessageProtocol<SubLine>>> {
     predicate : LinePredicate<SubLine>;
 
     ignoreWhiteCharacters : boolean;
@@ -16,7 +16,7 @@ export class FilterPipeline extends SubboxPipeline<AsyncIterableLike<MessageProt
         this.ignoreWhiteCharacters = ignoreWhiteCharacters;
     }
 
-    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterableIterator<MessageProtocol<SubLine>> {
+    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterable<MessageProtocol<SubLine>> {
         const predicate = this.predicate;
         if ( predicate instanceof Array ) {
             return filterIter( input, message => {

@@ -2,7 +2,7 @@ import { SubLine, SubRange, SubboxPipeline, MessageProtocol, MessageKind, Messag
 import { AsyncIterableLike, dropWhile, map, takeWhile } from 'data-async-iterators';
 import { StdContext } from "../index";
 
-export class TrimPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterableIterator<MessageProtocol<SubLine>>> {
+export class TrimPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterable<MessageProtocol<SubLine>>> {
     retime : boolean;
     range : SubRange;
 
@@ -13,7 +13,7 @@ export class TrimPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtoc
         this.range = range;
     }
 
-    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterableIterator<MessageProtocol<SubLine>> {
+    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterable<MessageProtocol<SubLine>> {
         const range = this.range;
         const retime = this.retime;
 

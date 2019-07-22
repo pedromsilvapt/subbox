@@ -1,4 +1,4 @@
-import { SubLine, Component } from "../subbox";
+import { SubLine } from "../subbox";
 import { AsyncIterableLike } from "data-async-iterators";
 import { Container } from "../Container";
 
