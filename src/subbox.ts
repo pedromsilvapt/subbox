@@ -1,7 +1,7 @@
 import { AsyncIterableLike } from 'data-async-iterators';
 import { Pipeline } from './Pipeline';
 import { SubFormat } from '.';
-import { FormatContext } from './Formats/format';
+import { FormatContext } from './Formats/Format';
 import { Container } from './Container';
 
 export class ContextManager extends Container<string, any> {

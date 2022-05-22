@@ -1,7 +1,7 @@
 import { AsyncIterableLike, toArray, fromArray } from "data-async-iterators";
 import { SubLine } from "../subbox";
 import * as Subtitle from 'subtitle';
-import { SubFormat } from "./format";
+import { SubFormat } from "./Format";
 
 export class VttSubLine extends SubLine {
     styles : Map<string, string> = new Map();

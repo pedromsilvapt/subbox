@@ -75,7 +75,7 @@ export class ParserPipeline extends SubboxPipeline<AsyncIterableLike<MessageProt
 }
 
 
-export class CompilerPipeline extends SubboxPipeline<AsyncIterableLike<MessageProtocol<SubLine>>, AsyncIterable<MessageProtocol<string>>> {
+export class CompilerPipeline extends SubboxPipeline<AsyncIterable<MessageProtocol<SubLine>>, AsyncIterable<MessageProtocol<string>>> {
     format : string = null;
 
     constructor ( format : string = null ) {
@@ -84,7 +84,7 @@ export class CompilerPipeline extends SubboxPipeline<AsyncIterableLike<MessagePr
         this.format = format;
     }
 
-    run ( ctx : StdContext, input : AsyncIterableLike<MessageProtocol<SubLine>> ) : AsyncIterable<MessageProtocol<string>> {
+    run ( ctx : StdContext, input : AsyncIterable<MessageProtocol<SubLine>> ) : AsyncIterable<MessageProtocol<string>> {
         const that = this;
 
         return dynamic(async function * () {
